@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=qemu-system-riscv64
+Comment=Nucleisys QEMU dist
+Exec=qemu-system-riscv64
+Icon=qemu
+Terminal=true
+Type=Application
+Categories=System;

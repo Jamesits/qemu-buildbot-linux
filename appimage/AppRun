@@ -1,0 +1,16 @@
+#!/bin/bash
+set -Eeuo pipefail
+# Reference: https://github.com/probonopd/ippsample/blob/75ecdb4d7e88468eb3c631dda1c43dbfe142f8e8/appimage/AppRun
+
+HERE="$(dirname "$(readlink -f "${0}")")"
+
+if [ ! -z $APPIMAGE ] ; then
+  BINARY_NAME=$(basename "$ARGV0")
+  if [ -e "$HERE/usr/bin/$BINARY_NAME" ] ; then
+    exec "$HERE/usr/bin/$BINARY_NAME" "$@"
+  else
+    exec "$HERE/usr/bin/ippserver" "$@"
+  fi
+else
+  exec "$HERE/usr/bin/ippserver" "$@"
+fi
