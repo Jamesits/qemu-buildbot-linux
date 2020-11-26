@@ -11,7 +11,8 @@ SOURCE_BASE_DIR="${SOURCE_BASE_DIR:-${HOME}}"
 SOURCE_GIT_URL="${SOURCE_GIT_URL:-https://github.com/qemu/qemu}"
 SOURCE_GIT_REF="${SOURCE_GIT_REF:-master}"
 BUILD_ARTIFACTS_DIR="${BUILD_ARTIFACTS_DIR:-/tmp/qemu-build}"
-APPDIR="${APPDIR:-/tmp/appdir}"
+APPDIR_BASE="${APPDIR_BASE:-/tmp}"
+APPDIR="${APPDIR_BASE}/appdir"
 DATE=$(date +%Y%m%d)
 TARGET_LIST="${TARGET_LIST:-${DEFAULT_TARGET_LIST}}"
 TRACE_BACKENDS="${TRACE_BACKENDS:-${DEFAULT_TRACE_BACKENDS}}"
@@ -48,7 +49,7 @@ pushd "${BUILD_ARTIFACTS_DIR}"
 ${SOURCE_BASE_DIR}/qemu/configure --prefix=/usr \
     --disable-werror --enable-trace-backends="${TRACE_BACKENDS}" --enable-debug \
     --enable-gnutls --enable-nettle --enable-curl --enable-vnc \
-    --enable-bzip2 --enable-guest-agent --enable-docs \
+    --enable-bzip2 \
     --enable-gtk --enable-sdl --enable-hax \
     --target-list="${TARGET_LIST}"
 
@@ -66,9 +67,9 @@ pushd "${APPDIR}"
 linuxdeployqt --appimage-version
 
 # cleanup
-rm -rf -- "${APPDIR}/usr/share/doc"
-rm -rf -- "${APPDIR}/usr/share/man"
-# rm -rf -- "${APPDIR}/usr/share/qemu" # bios, etc.
+rm -rf -- "${APPDIR}/usr/share/doc" || true
+rm -rf -- "${APPDIR}/usr/share/man" || true
+rm -rf -- "${APPDIR}/usr/share/qemu" || true # bios, etc.
 
 # replace desktop file
 rm -f -- "${APPDIR}/usr/share/applications/*"
@@ -79,10 +80,18 @@ cp "${SCRIPT_DIR}/appimage/AppRun" "${APPDIR}"
 chmod +x "${APPDIR}/AppRun"
 
 # create AppImage
-pushd ..
-linuxdeployqt ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -appimage
-# linuxdeployqt ./appdir/usr/bin/qemu-system-riscv32 -bundle-non-qt-libs
-# linuxdeployqt ./appdir/usr/bin/qemu-system-riscv64 -bundle-non-qt-libs
+pushd ${APPDIR_BASE}
+
+linuxdeployqt ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs
+
+for f in ./appdir/usr/bin/*; do 
+    echo "Processing $f file.."
+    linuxdeployqt "$f" -bundle-non-qt-libs
+done
+
+./linuxdeployqt*.AppImage --appimage-extract
+rm ./appdir/AppRun ; cp appimage/AppRun appdir/ ; chmod a+x ./appdir/AppRun # Replace symlink with custom script
+PATH=./squashfs-root/usr/bin:$PATH ./squashfs-root/usr/bin/appimagetool ./appdir/
 popd
 
 # end build AppImage
