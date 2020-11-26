@@ -5,9 +5,9 @@ set -x
 yum -y install epel-release
 
 yum -y install git python3 autoconf automake \
-	libmpc-devel mpfr-devel gmp-devel bzip2-devel gtk3-devel gnutls-devel curl-devel SDL2-devel\
-       	gawk bison flex texinfo patchutils gcc gcc-c++ zlib-devel expat-devel bzip2 \
-	wget unzip fuse-libs file
+	libmpc-devel mpfr-devel gmp-devel bzip2-devel gtk3-devel gnutls-devel curl-devel SDL2-devel \
+    gawk bison flex texinfo patchutils gcc gcc-c++ zlib-devel expat-devel bzip2 \
+	wget unzip fuse fuse-libs file
 
 mkdir -p /usr/local/bin
 
