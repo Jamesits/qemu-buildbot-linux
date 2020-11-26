@@ -65,13 +65,25 @@ pushd "${APPDIR}"
 
 linuxdeployqt --appimage-version
 
-rm -f "${APPDIR}/usr/share/applications/*"
+# cleanup
+rm -rf -- "${APPDIR}/usr/share/doc"
+rm -rf -- "${APPDIR}/usr/share/man"
+# rm -rf -- "${APPDIR}/usr/share/qemu" # bios, etc.
+
+# replace desktop file
+rm -f -- "${APPDIR}/usr/share/applications/*"
 cp "${SCRIPT_DIR}/appimage/qemu.desktop" "${APPDIR}/usr/share/applications/qemu.desktop"
 
-# linuxdeployqt ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs
-linuxdeployqt ./appdir/usr/share/applications/qemu.desktop -bundle-non-qt-libs -appimage
+# replace AppRun file
+cp "${SCRIPT_DIR}/appimage/AppRun" "${APPDIR}"
+chmod +x "${APPDIR}/AppRun"
+
+# create AppImage
+pushd ..
+linuxdeployqt ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -appimage
 # linuxdeployqt ./appdir/usr/bin/qemu-system-riscv32 -bundle-non-qt-libs
 # linuxdeployqt ./appdir/usr/bin/qemu-system-riscv64 -bundle-non-qt-libs
+popd
 
 # end build AppImage
 popd

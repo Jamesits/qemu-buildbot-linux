@@ -1,0 +1,54 @@
+name: $(Date:yyyyMMdd).$(Rev:r)
+
+trigger:
+  batch: true
+  branches:
+    include: [ "master" ]
+  paths:
+    exclude: [ "README.md" ]
+
+jobs:
+  - job: build
+    displayName: "build"
+    pool:
+      vmImage: "ubuntu-latest"
+    container: 
+      image: "centos:7"
+      options:  "--name ci-container -v /usr/bin/docker:/tmp/docker:ro --device /dev/fuse --cap-add SYS_ADMIN --security-opt apparmor:unconfined"
+    workspace:
+      clean: all
+    timeoutInMinutes: 240
+
+    strategy:
+      matrix:
+        plct-nuclei:
+          SOURCE_GIT_URL: 'https://github.com/isrc-cas/plct-qemu'
+          SOURCE_GIT_REF: 'plct-nuclei'
+          TARGET_LIST: 'riscv32-softmmu,riscv64-softmmu'
+          MAKE_FLAGS: "-j2"
+
+    steps:
+    
+    # work around privilege problem
+    # reference: https://github.com/microsoft/azure-pipelines-agent/issues/2043#issuecomment-687983301
+    - bash: |
+        /tmp/docker exec -t -u 0 ci-container \
+        sh -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" -y install sudo"
+      displayName: 'install sudo'
+
+    - bash: 'sudo -EH bash ./install_deps_inside_centos.sh'
+      displayName: 'prepare environment'
+
+    - bash: 'bash ./build_inside.sh'
+      displayName: 'build'
+
+    - bash: |
+        cp -v /tmp/qemu-*.AppImage "${BUILD_ARTIFACTSTAGINGDIRECTORY}"
+        tar -cvJf "${BUILD_ARTIFACTSTAGINGDIRECTORY}/artifacts.tar.xz" /tmp/qemu-build
+        tar -cvJf "${BUILD_ARTIFACTSTAGINGDIRECTORY}/appdir.tar.xz" /tmp/appdir
+      displayName: 'copy artifacts'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'public artifacts'
+      inputs:
+        artifactName: 'qemu-build'
