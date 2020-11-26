@@ -89,7 +89,7 @@ for f in ./appdir/usr/bin/*; do
     linuxdeployqt "$f" -bundle-non-qt-libs
 done
 
-./linuxdeployqt*.AppImage --appimage-extract
+linuxdeployqt --appimage-extract
 rm ./appdir/AppRun ; cp appimage/AppRun appdir/ ; chmod a+x ./appdir/AppRun # Replace symlink with custom script
 PATH=./squashfs-root/usr/bin:$PATH ./squashfs-root/usr/bin/appimagetool ./appdir/
 popd
