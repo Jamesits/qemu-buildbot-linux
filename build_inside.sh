@@ -16,8 +16,11 @@ DATE=$(date +%Y%m%d)
 TARGET_LIST="${TARGET_LIST:-${DEFAULT_TARGET_LIST}}"
 TRACE_BACKENDS="${TRACE_BACKENDS:-${DEFAULT_TRACE_BACKENDS}}"
 MAKE_FLAGS="${MAKE_FLAGS:--j}" # note that -j might cause OOM (on a 32-core 128G server!)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # ==========================================================================================
+
+export PATH=$PATH:${HOME}/.local/bin
 
 # prepare sources
 mkdir -p "${SOURCE_BASE_DIR}"
@@ -53,6 +56,25 @@ make all ${MAKE_FLAGS} V=1 CFLAGS="-Wno-redundant-decls"
 
 # make appdir
 make install DESTDIR="${APPDIR}"
+
+# end building
+popd
+
+# build AppImage
+pushd "${APPDIR}"
+
+linuxdeployqt --appimage-version
+
+rm -f "${APPDIR}/usr/share/applications/*"
+cp "${SCRIPT_DIR}/appimage/qemu.desktop" "${APPDIR}/usr/share/applications/qemu.desktop"
+
+# linuxdeployqt ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs
+linuxdeployqt ./appdir/usr/share/applications/qemu.desktop -bundle-non-qt-libs -appimage
+# linuxdeployqt ./appdir/usr/bin/qemu-system-riscv32 -bundle-non-qt-libs
+# linuxdeployqt ./appdir/usr/bin/qemu-system-riscv64 -bundle-non-qt-libs
+
+# end build AppImage
+popd
 
 # end build
 popd
