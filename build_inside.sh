@@ -1,5 +1,6 @@
 #!/bin/bash
 set -Eeuo pipefail
+set -x
 
 export DEBIAN_FRONTEND="noninteractive"
 
@@ -10,6 +11,7 @@ SOURCE_BASE_DIR="${SOURCE_BASE_DIR:-${HOME}}"
 SOURCE_GIT_URL="${SOURCE_GIT_URL:-https://github.com/qemu/qemu}"
 SOURCE_GIT_REF="${SOURCE_GIT_REF:-master}"
 BUILD_ARTIFACTS_DIR="${BUILD_ARTIFACTS_DIR:-/tmp/qemu-build}"
+APPDIR="${APPDIR:-/tmp/appdir}"
 DATE=$(date +%Y%m%d)
 TARGET_LIST="${TARGET_LIST:-${DEFAULT_TARGET_LIST}}"
 TRACE_BACKENDS="${TRACE_BACKENDS:-${DEFAULT_TRACE_BACKENDS}}"
@@ -24,7 +26,7 @@ pushd "${SOURCE_BASE_DIR}"
 if [ -d "./qemu/.git" ]; then
     echo "INFO: qemu source exists, not cloning again"
     pushd qemu
-    git pull
+#    git pull
     popd
 else
     rm -rf ./qemu
@@ -47,7 +49,10 @@ ${SOURCE_BASE_DIR}/qemu/configure --prefix=/usr \
     --enable-gtk --enable-sdl --enable-hax \
     --target-list="${TARGET_LIST}"
 
-make all qemu-edid.exe qemu-ga.exe ${MAKE_FLAGS} V=1 CFLAGS="-Wno-redundant-decls"
+make all ${MAKE_FLAGS} V=1 CFLAGS="-Wno-redundant-decls"
+
+# make appdir
+make install DESTDIR="${APPDIR}"
 
 # end build
 popd
