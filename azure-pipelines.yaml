@@ -33,7 +33,7 @@ jobs:
     # reference: https://github.com/microsoft/azure-pipelines-agent/issues/2043#issuecomment-687983301
     - bash: |
         /tmp/docker exec -t -u 0 ci-container \
-        sh -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" -y install sudo"
+        sh -c "yum -y install sudo"
       displayName: 'install sudo'
 
     - bash: 'sudo -EH bash ./install_deps_inside_centos.sh'
