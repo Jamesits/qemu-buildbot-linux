@@ -39,6 +39,10 @@ jobs:
     - bash: 'sudo -EH bash ./install_deps_inside_centos.sh'
       displayName: 'prepare environment'
 
+    # we need this under current user
+    - bash: 'pip3 install --user --upgrade sphinx'
+      displayName: 'install sphinx'
+
     - bash: 'bash ./build_inside.sh'
       displayName: 'build'
 

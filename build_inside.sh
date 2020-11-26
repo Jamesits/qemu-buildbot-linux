@@ -1,5 +1,5 @@
 #!/bin/bash
-set -Eeuo pipefail
+set -Eeu # CentOS 7 bash complains about `set -o pipefail`?
 set -x
 
 export DEBIAN_FRONTEND="noninteractive"
