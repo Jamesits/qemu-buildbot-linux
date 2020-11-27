@@ -13,12 +13,12 @@ Use a CentOS 7 docker container with FUSE.
 Execute directly with the first argument being the executable name you want to call:
 ```
 chmod +x qemu.AppImage
-./qemu.AppImage qemu-system-riscv32  -machine gd32vf103_rvstar -nographic -kernel helloworld.elf
+./qemu.AppImage qemu-system-riscv32 -machine gd32vf103_rvstar -nographic -kernel helloworld.elf
 ```
 
 or use its multicall capability:
 ```
 chmod +x qemu.AppImage
 ln -s qemu.AppImage qemu-system-riscv32
-./qemu-system-riscv32  -machine gd32vf103_rvstar -nographic -kernel helloworld.elf
+./qemu-system-riscv32 -machine gd32vf103_rvstar -nographic -kernel helloworld.elf
 ```
