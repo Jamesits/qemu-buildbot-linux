@@ -85,8 +85,8 @@ pushd ${APPDIR_BASE}
 
 linuxdeployqt ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs
 
-for f in ./appdir/usr/bin/*; do 
-    echo "Processing $f file.."
+for f in ./appdir/usr/bin/* ./appdir/usr/libexec/*; do 
+    echo "Patching executable $f.."
     linuxdeployqt "$f" -bundle-non-qt-libs
 done
 
