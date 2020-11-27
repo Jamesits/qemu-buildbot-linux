@@ -23,7 +23,7 @@ jobs:
       matrix:
         plct-nuclei:
           SOURCE_GIT_URL: 'https://github.com/isrc-cas/plct-qemu'
-          SOURCE_GIT_REF: 'plct-nuclei'
+          SOURCE_GIT_REF: 'plct-rtthread'
           TARGET_LIST: 'riscv32-softmmu,riscv64-softmmu'
           MAKE_FLAGS: "-j2"
 
@@ -47,9 +47,13 @@ jobs:
       displayName: 'build'
 
     - bash: |
-        cp -v /tmp/qemu-*.AppImage "${BUILD_ARTIFACTSTAGINGDIRECTORY}"
+        cp -v /tmp/qemu-*.AppImage "${BUILD_ARTIFACTSTAGINGDIRECTORY}/qemu-dist-linux64.bin"
         tar -cvJf "${BUILD_ARTIFACTSTAGINGDIRECTORY}/artifacts.tar.xz" /tmp/qemu-build
         tar -cvJf "${BUILD_ARTIFACTSTAGINGDIRECTORY}/appdir.tar.xz" /tmp/appdir
+        cd ${BUILD_ARTIFACTSTAGINGDIRECTORY}
+        ln -s qemu-dist-linux64.bin qemu-system-riscv32
+        ln -s qemu-dist-linux64.bin qemu-system-riscv64
+        tar -cf qemu-dist-linux64.tar qemu-dist-* qemu-system-*
       displayName: 'copy artifacts'
 
     - task: PublishBuildArtifacts@1
