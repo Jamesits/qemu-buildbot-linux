@@ -4,37 +4,34 @@ set -Eeuo pipefail
 
 HERE="$(dirname "$(readlink -f "${0}")")"
 
-__HELP_HEADER="
-QEMU Multicall Binary
+__HELP_HEADER="QEMU Multicall Binary
 
-Usage: $(basename ${0}) APP [OPTIONS] 
+Usage: $(basename ${ARGV0}) APP [OPTIONS] 
 
-Apps:
-"
+Apps available:"
 
 help() {
   >&2 echo "$__HELP_HEADER"
   for f in "${HERE}/usr/bin/"*; do
-    >&2 echo "\t$(basename ${f})"
+    >&2 echo -e "\t$(basename ${f})"
   done
 }
 
-if [ ! -z $APPIMAGE ] ; then
-  # first try the symlinked name
+if [ ! -z $APPIMAGE ] ; then # script is executed by AppImage runtime
+  
   BINARY_NAME=$(basename "$ARGV0")
-  if [ -e "${HERE}/usr/bin/$BINARY_NAME" ] ; then
-    exec "${HERE}/usr/bin/$BINARY_NAME" "$@"
+  if [ -e "${HERE}/usr/bin/${BINARY_NAME}" ] ; then
+    exec "${HERE}/usr/bin/${BINARY_NAME}" "$@"
   else
-    # then try the first argument
-    BINARY_NAME="${1}"
-    shift
-    if [ -e "${HERE}/usr/bin/$BINARY_NAME" ] ; then
-      exec "${HERE}/usr/bin/$BINARY_NAME" "$@"
-    else
-      help
-    fi
-  fi
-else
-  # script executed directly outside the AppImage runtime
-  help
+    if [ $# -ge 1 ] && [ -n "$1" ]; then # try the first argument 
+      BINARY_NAME="${1}"
+      shift
+      if [ -e "${HERE}/usr/bin/${BINARY_NAME}" ] ; then
+        exec "${HERE}/usr/bin/${BINARY_NAME}" "$@"
+      fi
+    fi # end try the first argument 
+  fi # end try the symlinked name
 fi
+
+help
+exit -1
