@@ -70,6 +70,7 @@ linuxdeployqt --appimage-version
 rm -rf -- "${APPDIR}/usr/share/doc" || true
 rm -rf -- "${APPDIR}/usr/share/man" || true
 rm -rf -- "${APPDIR}/usr/share/qemu" || true # bios, etc.
+find "${APPDIR}/usr/bin" -type f ~ -name "qemu-system-*" -delete # qemu-ga, qemu-img, etc.
 
 # replace desktop file
 rm -f -- "${APPDIR}/usr/share/applications/*"

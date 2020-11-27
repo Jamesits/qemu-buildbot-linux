@@ -5,13 +5,37 @@ set -Eeuo pipefail
 HERE="$(dirname "$(readlink -f "${0}")")"
 DEFAULT_EXECUTABLE="qemu-system-riscv64"
 
+__HELP_HEADER="
+QEMU Multicall Binary
+
+Usage: $(basename ${0}) APP [OPTIONS] 
+
+Apps:
+"
+
+help() {
+  >&2 echo "$__HELP_HEADER"
+  for f in "${HERE}/usr/bin/"*; do
+    >&2 echo "\t$(basename ${f})"
+  done
+}
+
 if [ ! -z $APPIMAGE ] ; then
+  # first try the symlinked name
   BINARY_NAME=$(basename "$ARGV0")
   if [ -e "${HERE}/usr/bin/$BINARY_NAME" ] ; then
     exec "${HERE}/usr/bin/$BINARY_NAME" "$@"
   else
-    exec "${HERE}/usr/bin/${DEFAULT_EXECUTABLE}" "$@"
+    # then try the first argument
+    BINARY_NAME="${1}"
+    shift
+    if [ -e "${HERE}/usr/bin/$BINARY_NAME" ] ; then
+      exec "${HERE}/usr/bin/$BINARY_NAME" "$@"
+    else
+      help
+    fi
   fi
 else
-  exec "${HERE}/usr/bin/${DEFAULT_EXECUTABLE}" "$@"
+  # script executed directly outside the AppImage runtime
+  help
 fi
