@@ -22,8 +22,8 @@ jobs:
     strategy:
       matrix:
         plct-nuclei:
-          SOURCE_GIT_URL: 'https://github.com/isrc-cas/plct-qemu'
-          SOURCE_GIT_REF: 'plct-rtthread'
+          SOURCE_GIT_URL: 'https://github.com/qemu/qemu.git'
+          SOURCE_GIT_REF: 'staging'
           TARGET_LIST: 'riscv32-softmmu,riscv64-softmmu'
           MAKE_FLAGS: "-j2"
 
